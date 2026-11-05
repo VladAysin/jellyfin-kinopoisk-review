@@ -1,0 +1,3 @@
+*.zip binary
+dist/manifest.json -text
+dist/SHA256SUMS.txt -text
