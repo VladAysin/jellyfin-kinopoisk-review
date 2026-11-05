@@ -23,7 +23,7 @@ export default function (view) {
         var device = typeof captured.api.deviceId === 'function' ? captured.api.deviceId() : '';
         var headers = {
             'X-Emby-Token': captured.token,
-            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings Settings", Device="Web", DeviceId="' + safeHeader(device) + '", Version="0.3.0", Token="' + safeHeader(captured.token) + '"'
+            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings Settings", Device="Web", DeviceId="' + safeHeader(device) + '", Version="0.3.1", Token="' + safeHeader(captured.token) + '"'
         };
         var options = { method: method || 'GET', headers: headers, credentials: 'same-origin', cache: 'no-store' };
         if (body !== undefined) { headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(body); }
@@ -107,6 +107,7 @@ export default function (view) {
         event.preventDefault();
         var cookie = input.value.trim(); input.value = '';
         if (!cookie) { message.textContent = 'Вставьте Cookie своей сессии.'; return; }
+        if (cookie.length > 32768) { message.textContent = 'Cookie длиннее 32768 символов. Скопируйте значение только одного заголовка Cookie.'; return; }
         action(async function () {
             try {
                 var result = await request('connection', 'PUT', { cookie: cookie });

@@ -85,3 +85,7 @@ Media Player, телевизоры, Kubernetes и просмотр сериал�
 Проверки не используют сессию Кинопоиска и не отправляют реальные оценки.
 
 Для повторения desktop-теста нужен отдельный JMP с DevTools на localhost:18097, экраном Xvfb и доступом к тестовому серверу. Начальное состояние — страница входа в тестовый Jellyfin. Команда: `node tests/live_desktop_smoke.cjs`. `desktop_cdp.cjs` использует стандартный DevTools-протокол, потому что Qt не поддерживает управление браузерными контекстами Playwright. Скриншоты: `desktop-settings.png`, `desktop-after-playback.png` в тестовой папке.
+
+## Cookie regression — 0.3.1
+
+Backend tests verify optional Cookie prefix and NBSP/tab separators, preserved values, rejection before network for embedded controls/Unicode, and safe diagnostics. The native settings test on Jellyfin 10.11.5 confirms no silent input truncation and U+2026 errors without exposing the submitted value. Home-to-dashboard hash navigation hit a Jellyfin home carousel pause error; the settings test uses a full page navigation to isolate the plugin. No real Kinopoisk session was used.

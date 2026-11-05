@@ -56,7 +56,7 @@ public sealed class KinopoiskClient : IDisposable
 
     private async Task<JsonDocument> SendAsync(string cookie, string operationName, string query, object variables, bool write, CancellationToken ct)
     {
-        ValidateCookie(cookie);
+        cookie = NormalizeCookie(cookie);
         using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint + "?operationName=" + operationName);
         request.Headers.Add("Cookie", cookie);
         request.Headers.Add("Origin", "https://www.kinopoisk.ru");
@@ -100,17 +100,40 @@ public sealed class KinopoiskClient : IDisposable
         }
     }
 
-    private static void ValidateCookie(string cookie)
+    public static string NormalizeCookie(string cookie)
     {
-        if (string.IsNullOrWhiteSpace(cookie) || cookie.Length > 32768 || cookie.Any(c => c < 0x20 || c > 0x7e))
-            throw new KinopoiskException("Вставьте значение заголовка Cookie одной строкой, без названия заголовка.");
+        if (string.IsNullOrWhiteSpace(cookie))
+            throw new KinopoiskException("Вставьте Cookie своей сессии.");
+        if (cookie.Length > 32768)
+            throw new KinopoiskException("Cookie длиннее 32768 символов. Скопируйте только один заголовок Cookie, а не все заголовки запроса.");
+        cookie = cookie.Trim().TrimStart('\uFEFF');
+        if (cookie.StartsWith("Cookie:", StringComparison.OrdinalIgnoreCase)) cookie = cookie[7..].Trim();
+        if (cookie.Contains('\r') || cookie.Contains('\n'))
+            throw new KinopoiskException("В Cookie есть перенос строки. В DevTools нажмите правой кнопкой на Cookie → Copy value (Копировать значение). Не копируйте все заголовки.");
+        if (cookie.StartsWith('{') || cookie.StartsWith('[') || cookie.StartsWith("curl ", StringComparison.OrdinalIgnoreCase))
+            throw new KinopoiskException("Вставлен JSON или cURL. Нужен заголовок запроса Cookie в формате name=value; name2=value2.");
+        var normalized = new List<string>();
         foreach (var part in cookie.Split(';'))
         {
+            // DevTools/clipboard formatting may add NBSP or tabs BETWEEN pairs.
+            // Trim boundaries only: never rewrite session values or percent-encode them.
             var value = part.Trim();
+            for (var i = 0; i < value.Length; i++)
+            {
+                var character = value[i];
+                if (character is >= (char)0x20 and <= (char)0x7e) continue;
+                if (character == '\u2026')
+                    throw new KinopoiskException("В Cookie найден символ многоточия U+2026. Возможно, скопировано сокращённое отображение. Используйте Copy value для полного значения.");
+                var code = char.IsHighSurrogate(character) && i + 1 < value.Length && char.IsLowSurrogate(value[i + 1])
+                    ? char.ConvertToUtf32(character, value[i + 1]) : character;
+                throw new KinopoiskException($"Внутри Cookie найден недопустимый символ U+{code:X4}. Значение не отправлено. Скопируйте полный Cookie через Copy value; содержимое вручную не меняйте.");
+            }
             var equals = value.IndexOf('=');
             if (equals < 1 || value[..equals].Any(c => !char.IsAsciiLetterOrDigit(c) && !"!#$%&'*+-.^_`|~".Contains(c)))
-                throw new KinopoiskException("Некорректное значение Cookie. Скопируйте только значение заголовка запроса Кинопоиска.");
+                throw new KinopoiskException("Неверный формат Cookie: нужны пары name=value через точку с запятой. Используйте Copy value у заголовка запроса Cookie, не таблицу Cookies.");
+            normalized.Add(value);
         }
+        return string.Join("; ", normalized);
     }
 
     private static JsonElement At(JsonElement value, params string[] path)

@@ -52,7 +52,7 @@
         if (!captured) throw new Error('Войдите в Jellyfin.');
         var headers = {
             'X-Emby-Token': captured.token,
-            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings", Device="Web", DeviceId="' + headerValue(captured.device) + '", Version="0.3.0", Token="' + headerValue(captured.token) + '"'
+            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings", Device="Web", DeviceId="' + headerValue(captured.device) + '", Version="0.3.1", Token="' + headerValue(captured.token) + '"'
         };
         var options = { method: method || 'GET', headers: headers, credentials: 'same-origin', cache: 'no-store' };
         if (data !== undefined) { headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(data); }

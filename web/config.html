@@ -7,12 +7,12 @@
             <p id="kpr-current-user"></p>
             <h3>Подключение Кинопоиска</h3>
             <p id="kpr-connection-status" role="status" aria-live="polite">Загрузка…</p>
-            <p>В браузере войдите на kinopoisk.ru. Откройте инструменты разработчика → Сеть, обновите страницу и выберите запрос к graphql.kinopoisk.ru. Скопируйте значение заголовка запроса Cookie, без слова Cookie:.</p>
+            <p>В браузере войдите на kinopoisk.ru. Откройте инструменты разработчика → Сеть, обновите страницу и выберите запрос к graphql.kinopoisk.ru. Нажмите правой кнопкой на заголовок запроса Cookie → Copy value (Копировать значение).</p>
             <p>Cookie даёт доступ к вашей сессии. Вводите его только на доверенном сервере через HTTPS или localhost. Значение сохраняется на сервере в зашифрованном виде и не показывается повторно.</p>
             <form id="kpr-connection-form">
                 <div class="inputContainer">
                     <label class="inputLabel" for="kpr-config-cookie">Cookie сессии Кинопоиска</label>
-                    <input is="emby-input" id="kpr-config-cookie" type="password" autocomplete="off" spellcheck="false" maxlength="24000" />
+                    <input is="emby-input" id="kpr-config-cookie" type="password" autocomplete="off" spellcheck="false" placeholder="name=value; name2=value2" />
                 </div>
                 <button is="emby-button" class="raised button-submit emby-button" type="submit">Подключить</button>
                 <button is="emby-button" class="raised emby-button" id="kpr-disconnect" type="button">Отключить</button>

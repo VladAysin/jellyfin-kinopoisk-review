@@ -32,7 +32,7 @@ class CatalogPackagingTests(unittest.TestCase):
         plugin = json.loads(path.read_text(encoding="utf-8"))[0]
         version = plugin["versions"][0]
         self.assertEqual(plugin["guid"], packaging.PLUGIN_ID)
-        self.assertEqual(version["version"], "0.3.0.0")
+        self.assertEqual(version["version"], "0.3.1.0")
         self.assertEqual(version["targetAbi"], "10.11.5.0")
         self.assertEqual(version["sourceUrl"], url)
         self.assertEqual(version["dependencies"], [packaging.TRANSFORMATION_ID])

@@ -64,7 +64,7 @@ public sealed class WebIntegration(IServiceProvider services, ILogger<WebIntegra
         if (html.Contains("KinopoiskRatings/client.js", StringComparison.OrdinalIgnoreCase)) return html;
         var body = Regex.Match(html, @"</body\s*>", RegexOptions.IgnoreCase);
         if (!body.Success) return html;
-        return html.Insert(body.Index, "<script id=\"kinopoisk-ratings-loader\" defer src=\"../KinopoiskRatings/client.js?v=0.3.0\"></script>\n");
+        return html.Insert(body.Index, "<script id=\"kinopoisk-ratings-loader\" defer src=\"../KinopoiskRatings/client.js?v=0.3.1\"></script>\n");
     }
 
     public static async Task Transform(string path, Stream contents)

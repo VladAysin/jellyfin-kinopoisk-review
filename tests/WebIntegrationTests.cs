@@ -16,7 +16,7 @@ public static class WebIntegrationTests
         await stream.WriteAsync(Encoding.UTF8.GetBytes("<html><body>Привет</BODY></html>"));
         await service.Callback("/web/index.html", stream);
         var html = Encoding.UTF8.GetString(stream.ToArray());
-        if (!html.Contains("Привет") || !html.Contains("../KinopoiskRatings/client.js?v=0.3.0")) throw new Exception("Injection failed");
+        if (!html.Contains("Привет") || !html.Contains("../KinopoiskRatings/client.js?v=0.3.1")) throw new Exception("Injection failed");
         await service.Callback("/web/index.html", stream);
         if (Encoding.UTF8.GetString(stream.ToArray()) != html) throw new Exception("Duplicate injection");
         if (WebIntegration.Inject("no body") != "no body") throw new Exception("Invalid HTML changed");

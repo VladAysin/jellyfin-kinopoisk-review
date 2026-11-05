@@ -7,6 +7,7 @@ public sealed class RatingService(RatingStore store, KinopoiskClient client)
 
     public async Task Connect(Guid user, string cookie, CancellationToken ct)
     {
+        cookie = KinopoiskClient.NormalizeCookie(cookie);
         await _gate.WaitAsync(ct);
         try { await client.VerifyAsync(cookie, ct); store.Connect(user, cookie); }
         finally { _gate.Release(); }

@@ -14,6 +14,19 @@ internal static class TransportTests
         Assert(handler.Uri == "https://graphql.kinopoisk.ru/graphql/?operationName=UserProfileModerator", "Fixed endpoint");
         Assert(handler.Cookie == "Session_id=secret", "Session sent to provider");
         Assert(handler.Origin == "https://www.kinopoisk.ru", "Origin provided");
+        await client.VerifyAsync("Cookie: Session_id=secret;\u00a0yandexuid=123");
+        Assert(handler.Cookie == "Session_id=secret; yandexuid=123", "Copied header and nonbreaking separator normalize without changing values");
+        Assert(KinopoiskClient.NormalizeCookie("  Session_id=secret==;\t uid=123  ") == "Session_id=secret==; uid=123", "Preserve equals and trim pair boundaries only");
+        foreach (var invalid in new[] { "Session_id=secret\r\nHost: attacker", "Session_id=secret;\r\nHost: attacker", "Session_id=sec\u00a0ret", "Session_id=sec\u200Bret", "Session_id=secret\u2026", "{\"value\":\"secret\"}", "Session_id=secret\tinside" })
+        {
+            var before = handler.Calls;
+            await ExpectSafeFailure(() => client.VerifyAsync(invalid));
+            Assert(handler.Calls == before, "Malformed values never sent to provider");
+        }
+        try { KinopoiskClient.NormalizeCookie("a=" + new string('x', 32767)); throw new Exception("Length limit not enforced"); }
+        catch (KinopoiskException ex) { Assert(ex.Message.Contains("32768"), "Length has a specific diagnostic"); }
+        try { KinopoiskClient.NormalizeCookie("Session_id=secret\u2026"); throw new Exception("Ellipsis accepted"); }
+        catch (KinopoiskException ex) { Assert(ex.Message.Contains("U+2026"), "Truncated display has a specific diagnostic"); }
 
         handler.Response = "{\"data\":{\"movie\":{\"vote\":{\"set\":{\"error\":null,\"status\":\"SUCCESS\"}}}}}";
         await client.RateAsync("Session_id=secret", "326", 8);
@@ -50,7 +63,7 @@ internal static class TransportTests
         await ExpectSafeFailure(() => client.VerifyAsync("Session_id=secret"));
         var callCount = handler.Calls;
         await ExpectSafeFailure(() => client.VerifyAsync("Session_id=secret\r\nHost: attacker"));
-        await ExpectSafeFailure(() => client.VerifyAsync("Cookie: Session_id=secret"));
+        await ExpectSafeFailure(() => client.VerifyAsync("Session_id=secret\u2026"));
         Assert(handler.Calls == callCount, "Malformed cookies rejected before network");
         try { await client.RateAsync("Session_id=secret", "326", 11); throw new Exception("Accepted invalid rating"); }
         catch (ArgumentOutOfRangeException) { }

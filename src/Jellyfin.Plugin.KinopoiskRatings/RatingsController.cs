@@ -38,10 +38,9 @@ public sealed class RatingsController(RatingStore store, RatingService service, 
     });
 
     [HttpPut("connection")]
-    [RequestSizeLimit(32768)]
+    [RequestSizeLimit(200000)]
     public Task<IActionResult> Connect([FromBody] ConnectionRequest request, CancellationToken ct) => RunAsync(async () =>
     {
-        if (string.IsNullOrWhiteSpace(request.Cookie) || request.Cookie.Length > 24000) return BadRequest(new { error = "Укажите Cookie сессии Кинопоиска." });
         await service.Connect(CurrentUser, request.Cookie, ct);
         return Ok(new { connected = true });
     });
