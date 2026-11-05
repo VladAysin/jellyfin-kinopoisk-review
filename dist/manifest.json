@@ -1,0 +1,23 @@
+[
+  {
+    "guid": "ff10e970-ff53-4bd8-b659-ed5bb04c6eb1",
+    "name": "Kinopoisk Ratings",
+    "overview": "Оценка просмотренного в Кинопоиске",
+    "description": "Оценка фильмов и сериалов после просмотра. Требует File Transformation.",
+    "owner": "Jellyfin Kinopoisk Ratings",
+    "category": "General",
+    "versions": [
+      {
+        "version": "0.2.0.0",
+        "changelog": "Подключение интерфейса через File Transformation без изменения файлов Jellyfin Web.",
+        "targetAbi": "10.11.5.0",
+        "sourceUrl": "https://raw.githubusercontent.com/VladAysin/jellyfin-kinopoisk-review/9f0a281254a003f2e79e276218b5f5978eaaf416/dist/KinopoiskRatings-0.2.0.zip",
+        "checksum": "9A61DCD3DCBE1D6A2B54ADDB73F018E5",
+        "timestamp": "2026-11-05T21:46:54Z",
+        "dependencies": [
+          "5e87cc92-571a-4d8d-8d98-d2d4147f9f90"
+        ]
+      }
+    ]
+  }
+]

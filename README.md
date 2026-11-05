@@ -61,10 +61,10 @@ python -m unittest discover -s tests -p "test_*.py" -v
 Каталожный архив содержит DLL в корне. Сборка и публикация — отдельные действия:
 
 ```text
-python scripts/package.py --source-url https://raw.githubusercontent.com/VladAysin/jellyfin-kinopoisk-review/v0.2.0/dist/KinopoiskRatings-0.2.0.zip
+python scripts/package.py --source-url https://raw.githubusercontent.com/VladAysin/jellyfin-kinopoisk-review/9f0a281254a003f2e79e276218b5f5978eaaf416/dist/KinopoiskRatings-0.2.0.zip
 ```
 
-Команда создаёт ZIP, `dist/manifest.json` с MD5 архива и `SHA256SUMS.txt`. Нужно опубликовать эти файлы в репозитории; тег `v0.2.0` должен указывать на коммит с этим архивом. URL каталога использует ветку `main`, URL архива — версионный тег. Без `--source-url` создаётся только `manifest.template.json`, непригодный для добавления в Jellyfin. Секреты и пользовательские Cookie в публикацию не входят.
+Команда создаёт ZIP, `dist/manifest.json` с MD5 архива и `SHA256SUMS.txt`. Нужно опубликовать эти файлы в репозитории; ссылка архива должна указывать на конкретный коммит с этим архивом. URL каталога использует ветку `main`, URL архива — неизменяемый SHA коммита. Без `--source-url` создаётся только `manifest.template.json`, непригодный для добавления в Jellyfin. Секреты и пользовательские Cookie в публикацию не входят.
 
 ## Подключение Кинопоиска
 

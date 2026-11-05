@@ -1,0 +1,3 @@
+37ec4f14c0aca70fd38f7b58a06c40052cb0b2a820e5b5e6922acc6dcfcf1a11  Jellyfin.Plugin.KinopoiskRatings.dll
+4a8fd807fb1284486c659906f68f764cecb3a715e00b2f507a93cff061b361f7  KinopoiskRatings-0.2.0.zip
+ced24125181e939e1e2453ea39968b449d0c4bc170118b7f06dd5d397f94a94b  manifest.json

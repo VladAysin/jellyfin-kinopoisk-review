@@ -65,10 +65,10 @@ def package(root: Path, source_url: str | None = None) -> tuple[Path, Path]:
     # Never leave an old publishable manifest beside a newly rebuilt ZIP.
     stale = dist / ("manifest.template.json" if source_url else "manifest.json")
     stale.unlink(missing_ok=True)
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     checksums = "".join(hashlib.sha256(path.read_bytes()).hexdigest() + "  " + path.name + "\n"
                         for path in (dist / DLL, archive, manifest_path))
-    (dist / "SHA256SUMS.txt").write_text(checksums, encoding="utf-8")
+    (dist / "SHA256SUMS.txt").write_text(checksums, encoding="utf-8", newline="\n")
     return archive, manifest_path
 
 
