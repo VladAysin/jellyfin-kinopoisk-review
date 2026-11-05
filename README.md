@@ -65,10 +65,10 @@ python -m unittest discover -s tests -p "test_*.py" -v
 Каталожный архив содержит DLL в корне. Сборка и публикация — отдельные действия:
 
 ```text
-python scripts/package.py --source-url "https://raw.githubusercontent.com/VladAysin/jellyfin-kinopoisk-review/9424a4a903ee23c14123d81fb236e8d266b19f87/dist/KinopoiskRatings-0.3.1.zip"
+python scripts/package.py --source-url "https://raw.githubusercontent.com/VladAysin/jellyfin-kinopoisk-review/049171d735ee5ab4533fd6a2b8e89a6794eb76cc/dist/KinopoiskRatings-0.3.1.zip"
 ```
 
-Вместо `9424a4a903ee23c14123d81fb236e8d266b19f87` подставьте SHA опубликованного коммита с архивом этой версии. Команда создаёт ZIP, `dist/manifest.json` с MD5 архива и `SHA256SUMS.txt`. Нужно опубликовать эти файлы в репозитории; ссылка архива должна указывать на конкретный коммит с этим архивом. URL каталога использует ветку `main`, URL архива — неизменяемый SHA коммита. Без `--source-url` создаётся только `manifest.template.json`, непригодный для добавления в Jellyfin. Секреты и пользовательские Cookie в публикацию не входят.
+Вместо `049171d735ee5ab4533fd6a2b8e89a6794eb76cc` подставьте SHA опубликованного коммита с архивом этой версии. Команда создаёт ZIP, `dist/manifest.json` с MD5 архива и `SHA256SUMS.txt`. Нужно опубликовать эти файлы в репозитории; ссылка архива должна указывать на конкретный коммит с этим архивом. URL каталога использует ветку `main`, URL архива — неизменяемый SHA коммита. Без `--source-url` создаётся только `manifest.template.json`, непригодный для добавления в Jellyfin. Секреты и пользовательские Cookie в публикацию не входят.
 
 ## Подключение Кинопоиска
 
