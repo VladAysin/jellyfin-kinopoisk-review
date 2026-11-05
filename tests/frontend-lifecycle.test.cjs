@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 // Minimal DOM harness: exercise the real async UI against mocked server responses.
-function environment(responder) {
+function environment(responder, hash = '') {
     let document;
     class Node {
         constructor(tag) { this.tagName = tag; this.children = []; this.attributes = {}; this.events = {}; this.text = ''; this.hidden = false; }
@@ -33,7 +33,7 @@ function environment(responder) {
     };
     const state = { user:'u1', token:'token1' }, intervals = [], requests = [];
     const root = {
-        document, setTimeout, clearTimeout, AbortController,
+        document, location: { hash }, setTimeout, clearTimeout, AbortController,
         setInterval: (fn, time) => intervals.push({fn,time}),
         ApiClient: { accessToken:()=>state.token, getCurrentUserId:()=>state.user, deviceId:()=> 'dev', getUrl: route => 'https://test/jellyfin/' + route },
         fetch: async (url, options) => {
@@ -48,8 +48,17 @@ function environment(responder) {
 }
 async function flush() { for(let i=0;i<10;i++) await new Promise(resolve=>setImmediate(resolve)); }
 
+test('native settings page is not interrupted by automatic rating prompts', async () => {
+    const env = environment(() => { throw new Error('Unexpected polling on settings'); }, '#/configurationpage?name=KinopoiskRatings');
+    await flush();
+    assert.equal(env.requests.length, 0);
+    assert.equal(env.all().some(node => node.attributes.role === 'dialog'), false);
+    assert.equal(env.button('КП'), undefined);
+});
+
 test('active playback suppresses automatic dialogs and even queue requests', async () => {
     const env = environment(() => ({active:true})); await flush();
+    assert.equal(env.button('КП'),undefined);
     assert.equal(env.requests.length,1);
     assert.equal(env.requests[0].route,'playback-active');
     assert.equal(env.all().some(node => node.attributes.role === 'dialog'), false);
@@ -69,7 +78,7 @@ test('title is plain text, success requires backend confirmation, logout removes
     env.state.token = ''; env.state.user = '';
     env.intervals.find(entry=>entry.time===1000).fn();
     assert.equal(env.all().some(node=>node.attributes.role==='dialog'),false);
-    assert.equal(env.button('КП').hidden,true);
+    assert.equal(env.button('КП'),undefined);
 });
 
 test('queue response for previous user cannot open a dialog after account switch', async () => {

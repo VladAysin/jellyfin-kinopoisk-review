@@ -25,7 +25,7 @@
     if (!root.document || root.__kinopoiskRatingsLoaded) return;
     root.__kinopoiskRatingsLoaded = true;
 
-    var document = root.document, context = null, modal = null, launcher = null;
+    var document = root.document, context = null, modal = null;
     var generation = 0, polling = false, shown = Object.create(null), busy = false;
 
     function element(tag, text, className) {
@@ -45,7 +45,6 @@
             context = next; generation += 1; shown = Object.create(null); polling = false;
             close(true);
         }
-        if (launcher) launcher.hidden = !context;
         return context;
     }
     async function request(path, method, data) {
@@ -53,7 +52,7 @@
         if (!captured) throw new Error('Войдите в Jellyfin.');
         var headers = {
             'X-Emby-Token': captured.token,
-            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings", Device="Web", DeviceId="' + headerValue(captured.device) + '", Version="0.1.0", Token="' + headerValue(captured.token) + '"'
+            'X-Emby-Authorization': 'MediaBrowser Client="Kinopoisk Ratings", Device="Web", DeviceId="' + headerValue(captured.device) + '", Version="0.3.0", Token="' + headerValue(captured.token) + '"'
         };
         var options = { method: method || 'GET', headers: headers, credentials: 'same-origin', cache: 'no-store' };
         if (data !== undefined) { headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(data); }
@@ -127,29 +126,9 @@
             }
         }
     }
-    async function settings() {
-        var view = open('Подключение Кинопоиска'); if (!view) return;
-        view.content.appendChild(element('p', 'Для отправки оценки используется ваша сессия Кинопоиска. Cookie даёт доступ к аккаунту: вводите его только на своём доверенном сервере Jellyfin через HTTPS или localhost.'));
-        view.content.appendChild(element('p', 'В браузере войдите на kinopoisk.ru. Откройте инструменты разработчика → Сеть, обновите страницу и выберите запрос к graphql.kinopoisk.ru. В заголовках запроса скопируйте значение Cookie (без слова Cookie:). Пароль от Яндекса здесь не нужен.'));
-        var label = element('label', 'Cookie сессии Кинопоиска'), input = element('input');
-        input.type = 'password'; input.autocomplete = 'off'; input.spellcheck = false; input.id = 'kpr-cookie'; label.htmlFor = input.id;
-        input.placeholder = 'Вставьте значение Cookie';
-        view.content.appendChild(label); view.content.appendChild(input);
-        view.content.appendChild(button('Подключить', function () {
-            var cookie = input.value.trim(); input.value = '';
-            if (!cookie) { view.message.textContent = 'Вставьте Cookie своей сессии.'; return; }
-            action(view, async function () {
-                var result = await request('connection', 'PUT', { cookie: cookie }); cookie = '';
-                if (!result || result.connected !== true) throw new Error('Сервер не подтвердил подключение.');
-                if (live(view)) view.message.textContent = 'Кинопоиск подключён. Теперь можно отправлять оценки.';
-            });
-        }));
-        view.content.appendChild(button('Отключить', function () { action(view, async function () {
-            await request('connection', 'DELETE'); if (live(view)) view.message.textContent = 'Сессия Кинопоиска удалена с сервера.';
-        }); }));
-        view.content.appendChild(button('К списку оценок', showQueue));
-        try { var status = await request('connection'); if (live(view)) view.message.textContent = status && status.connected ? 'Сессия сохранена на сервере.' : 'Кинопоиск ещё не подключён.'; }
-        catch (error) { if (live(view)) view.message.textContent = error.message; }
+    function settings() {
+        close(true);
+        root.location.hash = '/configurationpage?name=KinopoiskRatings';
     }
     function rating(item) {
         var view = open('Как вам ' + (item.kind === 'series' ? 'сериал' : 'фильм') + '?'); if (!view) return;
@@ -185,20 +164,9 @@
             await request('queue/' + encodeURIComponent(item.id) + '/dismiss', 'POST', { defer: defer }); if (live(view)) close(true);
         }); }
     }
-    async function showQueue() {
-        var view = open('Оценить просмотренное'); if (!view) return;
-        view.content.appendChild(button('Подключение Кинопоиска', settings));
-        view.message.textContent = 'Загрузка…';
-        try {
-            var items = eligible(await request('queue')); if (!live(view)) return;
-            view.message.textContent = items.length ? 'Выберите фильм или сериал.' : 'Пока нет фильмов и сериалов, ожидающих оценки.';
-            items.forEach(function (item) {
-                view.content.appendChild(button((item.title || 'Без названия') + (item.status === 'failed' ? ' — повторить отправку' : ''), function () { rating(item); }, 'kpr-button kpr-item'));
-            });
-        } catch (error) { if (live(view)) view.message.textContent = error.message; }
-    }
     async function poll() {
-        if (!refreshIdentity() || polling || modal || document.hidden) return;
+        if (!refreshIdentity() || polling || modal || document.hidden ||
+            (root.location && /configurationpage.*KinopoiskRatings/i.test(root.location.hash))) return;
         polling = true; var epoch = generation;
         try {
             var playback = await request('playback-active');
@@ -216,10 +184,11 @@
     }
     function start() {
         var style = element('style');
-        style.textContent = '.kpr-launch{position:fixed;right:18px;bottom:18px;z-index:9990;border:1px solid #777;border-radius:24px;background:#202028;color:#fff;padding:10px 15px;cursor:pointer;font:600 14px sans-serif}.kpr-launch[hidden]{display:none}.kpr-overlay{position:fixed;inset:0;top:0;right:0;bottom:0;left:0;z-index:100000;background:rgba(0,0,0,.76);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}.kpr-panel{font:16px/1.5 sans-serif;background:#24242b;color:#fff;border:1px solid #62626e;border-radius:16px;max-width:580px;width:100%;max-height:85vh;overflow:auto;padding:24px;box-shadow:0 20px 80px #000;box-sizing:border-box}.kpr-panel h2{font-size:24px;margin:12px 0}.kpr-panel h3{font-size:21px;overflow-wrap:break-word}.kpr-panel p{line-height:1.5}.kpr-panel a{color:#8dcaff}.kpr-button{font:inherit;padding:10px 13px;margin:5px 6px 5px 0;background:#393944;color:#fff;border:1px solid #747480;border-radius:8px;cursor:pointer}.kpr-button:hover{background:#505060}.kpr-button:focus,.kpr-launch:focus,.kpr-panel input:focus{outline:3px solid #ff9d45;outline-offset:2px}.kpr-button:disabled{opacity:.55;cursor:wait}.kpr-close{float:right;font-size:13px}.kpr-scores{display:flex;flex-wrap:wrap;margin:20px 0}.kpr-scores button{min-width:45px;font-weight:bold}.kpr-item{display:block;width:100%;text-align:left;overflow-wrap:break-word}.kpr-panel label{display:block;margin-top:15px}.kpr-panel input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0;background:#18181f;color:#fff;border:1px solid #888;border-radius:6px}.kpr-message{color:#ffd5ad;white-space:pre-wrap;overflow-wrap:break-word}.kpr-message:empty{display:none}';
+        style.textContent = '.kpr-overlay{position:fixed;inset:0;top:0;right:0;bottom:0;left:0;z-index:100000;background:rgba(0,0,0,.76);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}.kpr-panel{font:16px/1.5 sans-serif;background:#24242b;color:#fff;border:1px solid #62626e;border-radius:16px;max-width:580px;width:100%;max-height:85vh;overflow:auto;padding:24px;box-shadow:0 20px 80px #000;box-sizing:border-box}.kpr-panel h2{font-size:24px;margin:12px 0}.kpr-panel h3{font-size:21px;overflow-wrap:break-word}.kpr-panel p{line-height:1.5}.kpr-panel a{color:#8dcaff}.kpr-button{font:inherit;padding:10px 13px;margin:5px 6px 5px 0;background:#393944;color:#fff;border:1px solid #747480;border-radius:8px;cursor:pointer}.kpr-button:hover{background:#505060}.kpr-button:focus,.kpr-panel input:focus{outline:3px solid #ff9d45;outline-offset:2px}.kpr-button:disabled{opacity:.55;cursor:wait}.kpr-close{float:right;font-size:13px}.kpr-scores{display:flex;flex-wrap:wrap;margin:20px 0}.kpr-scores button{min-width:45px;font-weight:bold}.kpr-item{display:block;width:100%;text-align:left;overflow-wrap:break-word}.kpr-panel label{display:block;margin-top:15px}.kpr-panel input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0;background:#18181f;color:#fff;border:1px solid #888;border-radius:6px}.kpr-message{color:#ffd5ad;white-space:pre-wrap;overflow-wrap:break-word}.kpr-message:empty{display:none}';
         document.head.appendChild(style);
-        launcher = button('КП', showQueue, 'kpr-launch'); launcher.title = 'Кинопоиск — оценить просмотренное'; launcher.setAttribute('aria-label', launcher.title); launcher.hidden = true;
-        document.body.appendChild(launcher); refreshIdentity(); poll();
+        refreshIdentity(); poll();
+        document.addEventListener('visibilitychange', poll);
+        if (root.addEventListener) root.addEventListener('focus', poll);
         root.setInterval(refreshIdentity, 1000); root.setInterval(poll, 10000);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

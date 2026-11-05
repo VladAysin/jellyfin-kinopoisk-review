@@ -1,0 +1,28 @@
+<div data-role="page" id="kinopoiskRatingsConfigurationPage" class="page type-interior pluginConfigurationPage"
+     data-controller="__plugin/KinopoiskRatingsConfig.js" data-require="emby-input,emby-button,emby-select">
+    <div data-role="content">
+        <div class="content-primary" style="max-width: 55em;">
+            <h2>Kinopoisk Ratings</h2>
+            <p>Подключение Кинопоиска и оценки относятся только к пользователю Jellyfin, под которым вы вошли сейчас.</p>
+            <p id="kpr-current-user"></p>
+            <h3>Подключение Кинопоиска</h3>
+            <p id="kpr-connection-status" role="status" aria-live="polite">Загрузка…</p>
+            <p>В браузере войдите на kinopoisk.ru. Откройте инструменты разработчика → Сеть, обновите страницу и выберите запрос к graphql.kinopoisk.ru. Скопируйте значение заголовка запроса Cookie, без слова Cookie:.</p>
+            <p>Cookie даёт доступ к вашей сессии. Вводите его только на доверенном сервере через HTTPS или localhost. Значение сохраняется на сервере в зашифрованном виде и не показывается повторно.</p>
+            <form id="kpr-connection-form">
+                <div class="inputContainer">
+                    <label class="inputLabel" for="kpr-config-cookie">Cookie сессии Кинопоиска</label>
+                    <input is="emby-input" id="kpr-config-cookie" type="password" autocomplete="off" spellcheck="false" maxlength="24000" />
+                </div>
+                <button is="emby-button" class="raised button-submit emby-button" type="submit">Подключить</button>
+                <button is="emby-button" class="raised emby-button" id="kpr-disconnect" type="button">Отключить</button>
+            </form>
+            <p id="kpr-config-message" role="status" aria-live="polite" style="white-space: pre-wrap;"></p>
+            <hr />
+            <h3>Оценить просмотренное</h3>
+            <p>После завершения просмотра окно оценки появляется автоматически. Здесь можно вернуться к пропущенному окну или повторить неподтверждённую отправку. «Позже» откладывает запись на сутки.</p>
+            <button is="emby-button" class="raised emby-button" id="kpr-refresh-queue" type="button">Обновить список</button>
+            <div id="kpr-config-queue" style="margin-top: 1.5em;"></div>
+        </div>
+    </div>
+</div>

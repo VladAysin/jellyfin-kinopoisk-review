@@ -9,11 +9,25 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Jellyfin.Plugin.KinopoiskRatings;
 
 public sealed class Plugin(IApplicationPaths paths, IXmlSerializer serializer)
-    : BasePlugin<BasePluginConfiguration>(paths, serializer)
+    : BasePlugin<BasePluginConfiguration>(paths, serializer), IHasWebPages
 {
     public override string Name => "Kinopoisk Ratings";
     public override string Description => "Оценка просмотренного в Кинопоиске";
     public override Guid Id => new("ff10e970-ff53-4bd8-b659-ed5bb04c6eb1");
+
+    public IEnumerable<PluginPageInfo> GetPages()
+    {
+        yield return new PluginPageInfo
+        {
+            Name = "KinopoiskRatings",
+            EmbeddedResourcePath = "KinopoiskRatings.config.html"
+        };
+        yield return new PluginPageInfo
+        {
+            Name = "KinopoiskRatingsConfig.js",
+            EmbeddedResourcePath = "KinopoiskRatings.config.js"
+        };
+    }
 }
 
 public sealed class ServiceRegistrator : IPluginServiceRegistrator

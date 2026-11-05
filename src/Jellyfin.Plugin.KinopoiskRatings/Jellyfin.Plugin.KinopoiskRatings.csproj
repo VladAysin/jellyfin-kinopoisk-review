@@ -3,12 +3,14 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Jellyfin.Controller" Version="10.11.5" />
     <PackageReference Include="Jellyfin.Model" Version="10.11.5" />
     <EmbeddedResource Include="../../web/kinopoisk-ratings.js" LogicalName="KinopoiskRatings.client.js" />
+    <EmbeddedResource Include="../../web/config.html" LogicalName="KinopoiskRatings.config.html" />
+    <EmbeddedResource Include="../../web/config.js" LogicalName="KinopoiskRatings.config.js" />
   </ItemGroup>
 </Project>

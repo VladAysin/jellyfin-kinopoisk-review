@@ -10,8 +10,8 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 DLL = "Jellyfin.Plugin.KinopoiskRatings.dll"
-VERSION = "0.2.0.0"
-ARCHIVE = "KinopoiskRatings-0.2.0.zip"
+VERSION = "0.3.0.0"
+ARCHIVE = "KinopoiskRatings-0.3.0.zip"
 PLUGIN_ID = "ff10e970-ff53-4bd8-b659-ed5bb04c6eb1"
 TRANSFORMATION_ID = "5e87cc92-571a-4d8d-8d98-d2d4147f9f90"
 URL_PLACEHOLDER = "REPLACE_WITH_HTTPS_RELEASE_ARCHIVE_URL"
@@ -53,7 +53,7 @@ def package(root: Path, source_url: str | None = None) -> tuple[Path, Path]:
         "category": "General",
         "versions": [{
             "version": VERSION,
-            "changelog": "Подключение интерфейса через File Transformation без изменения файлов Jellyfin Web.",
+            "changelog": "Штатные параметры плагина и очередь оценок; удалена плавающая кнопка. Окно проверено в Jellyfin Media Player 1.12.0 (Linux, MPV).",
             "targetAbi": "10.11.5.0",
             "sourceUrl": source_url or URL_PLACEHOLDER,
             "checksum": hashlib.md5(archive_bytes, usedforsecurity=False).hexdigest().upper(),
